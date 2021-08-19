@@ -1,5 +1,7 @@
 {
   "name": "sudokusolver",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }
