@@ -12,6 +12,9 @@
 	</ion-header>
 
 	<style>
+		body {
+			background-color: red;
+		}
 		.button-set {
 			margin: 0vw 3vw;
 		}
@@ -57,7 +60,9 @@
 			background-color: lightgrey;
 		}
 		.sudoku-cell.selected-cell {
-			background-color: yellow;
+			/* border: 3px solid blue; */
+			box-shadow: inset 0 0 5px royalblue;
+			background-color: rgba(0, 0, 255, 0.25);
 		}
 		.sudoku-cell.selected-cell#fixed {
 			background-color: #e9e96a;

@@ -36,7 +36,8 @@ class SudokuSolver {
 	checkPuzzle = () => {
 		for (let i = 0; i < 9; i++) {
 			for (let j = 0; j < 9; j++) {
-				let board = JSON.parse(JSON.stringify(this.puzzle));
+				let board = [];
+				this.puzzle.forEach(row => board.push([...row]));
 				if (board[i][j] !== 0) {
 					let tmp = board[i][j];
 					board[i][j] = 0;
@@ -58,15 +59,16 @@ class SudokuSolver {
 						ss.push(tmp_i);
 				}
 				if (ss.length === 0) return false;
-				else if (ss.length === 1) {
+				if (ss.length === 1) {
 					board[i][j] = ss[0];
 					return this.solve(board);
 				} else {
 					for (let num of ss) {
-						let tmp = JSON.parse(JSON.stringify(board));
+						let tmp = [];
+						board.forEach(row => tmp.push([...row]));
 						tmp[i][j] = num;
-						let tt = this.solve(tmp);
-						if (tt) return tt;
+						tmp = this.solve(tmp);
+						if (tmp) return tmp;
 					}
 					return false;
 				}
@@ -87,6 +89,17 @@ export class HomePage {
 	error = '';
 	selected_cell;
 	samples = [
+		[
+			[0, 0, 0, 0, 0, 4, 7, 0, 8],
+			[0, 0, 0, 0, 0, 8, 0, 0, 3],
+			[0, 0, 0, 2, 1, 5, 0, 0, 0],
+			[0, 0, 7, 0, 0, 0, 0, 9, 6],
+			[8, 0, 0, 0, 9, 0, 0, 0, 0],
+			[0, 0, 4, 1, 0, 0, 0, 0, 0],
+			[0, 1, 0, 0, 4, 0, 5, 0, 0],
+			[0, 0, 0, 0, 0, 0, 2, 0, 0],
+			[2, 5, 0, 0, 0, 0, 0, 8, 0],
+		],
 		[
 			[6, 0, 9, 1, 0, 2, 0, 8, 0],
 			[0, 0, 0, 0, 0, 0, 4, 0, 0],
@@ -110,28 +123,6 @@ export class HomePage {
 			[0, 0, 0, 0, 7, 0, 8, 0, 1],
 		],
 		[
-			[0, 0, 0, 0, 0, 4, 7, 0, 8],
-			[0, 0, 0, 0, 0, 8, 0, 0, 3],
-			[0, 0, 0, 2, 1, 5, 0, 0, 0],
-			[0, 0, 7, 0, 0, 0, 0, 9, 6],
-			[8, 0, 0, 0, 9, 0, 0, 0, 0],
-			[0, 0, 4, 1, 0, 0, 0, 0, 0],
-			[0, 1, 0, 0, 4, 0, 5, 0, 0],
-			[0, 0, 0, 0, 0, 0, 2, 0, 0],
-			[2, 5, 0, 0, 0, 0, 0, 8, 0],
-		],
-		[
-			[6, 0, 0, 0, 0, 0, 0, 5, 0],
-			[9, 0, 0, 8, 3, 0, 0, 0, 0],
-			[0, 0, 1, 0, 0, 0, 0, 0, 3],
-			[0, 0, 0, 0, 0, 2, 0, 0, 0],
-			[0, 5, 0, 0, 0, 7, 0, 0, 6],
-			[0, 7, 2, 0, 1, 0, 0, 0, 0],
-			[0, 0, 0, 4, 0, 0, 1, 0, 0],
-			[0, 0, 0, 0, 0, 0, 7, 2, 5],
-			[0, 0, 0, 1, 0, 9, 6, 0, 0],
-		],
-		[
 			[0, 0, 0, 8, 0, 0, 0, 0, 9],
 			[0, 0, 0, 2, 7, 3, 0, 0, 0],
 			[0, 0, 0, 5, 0, 0, 1, 0, 8],
@@ -152,6 +143,17 @@ export class HomePage {
 			[8, 0, 2, 0, 0, 7, 0, 0, 0],
 			[0, 4, 0, 0, 3, 0, 0, 1, 8],
 			[0, 0, 6, 0, 0, 0, 0, 0, 0],
+		],
+		[
+			[6, 0, 0, 0, 0, 0, 0, 5, 0],
+			[9, 0, 0, 8, 3, 0, 0, 0, 0],
+			[0, 0, 1, 0, 0, 0, 0, 0, 3],
+			[0, 0, 0, 0, 0, 2, 0, 0, 0],
+			[0, 5, 0, 0, 0, 7, 0, 0, 6],
+			[0, 7, 2, 0, 1, 0, 0, 0, 0],
+			[0, 0, 0, 4, 0, 0, 1, 0, 0],
+			[0, 0, 0, 0, 0, 0, 7, 2, 5],
+			[0, 0, 0, 1, 0, 9, 6, 0, 0],
 		],
 	];
 	SS = new SudokuSolver();
@@ -179,7 +181,8 @@ export class HomePage {
 	}
 
 	setPuzzle(num) {
-		this.SS.puzzle = JSON.parse(JSON.stringify(this.samples[num - 1]));
+		this.SS.puzzle = [];
+		this.samples[num - 1].forEach(row => this.SS.puzzle.push([...row]));
 		this.SS.board = this.SS.puzzle;
 	}
 
