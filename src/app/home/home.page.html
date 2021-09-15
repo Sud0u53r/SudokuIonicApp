@@ -44,6 +44,7 @@
 		}
 		.sudoku-board {
 			margin-top: 3vw;
+			margin-bottom: 2vw;
 			border: 3px solid black;
 		}
 		.sudoku-row:nth-child(3n) {
@@ -52,36 +53,59 @@
 		.sudoku-cell:nth-child(3n + 1) {
 			border-left: 3px solid black;
 		}
+		.sudoku-cell#fixed {
+			background-color: lightgrey;
+		}
+		.sudoku-cell.selected-cell {
+			background-color: yellow;
+		}
+		.sudoku-cell.selected-cell#fixed {
+			background-color: #e9e96a;
+		}
 		.inp-table {
 			margin-left: auto;
 			margin-right: auto;
 			border-collapse: separate;
-			border-spacing: 20px 15px;
+			border-spacing: 20px 10px;
 		}
 		.inp-table > tr > td {
-			height: 10vw;
-			width: 10vw;
+			height: 12vw;
+			width: 12vw;
 			text-align: center;
 			border: 2px solid black;
 		}
 	</style>
 	<div class="loader-div" *ngIf="loader == true"><h2>Please wait...</h2></div>
+	<br />
 	<div class="button-set">
-		<ion-button class="btns" (click)="selectPuzzle(1)">Puzzle - 1</ion-button>
-		<ion-button class="btns" (click)="selectPuzzle(2)">Puzzle - 2</ion-button>
-		<ion-button class="btns" (click)="selectPuzzle(3)">Puzzle - 3</ion-button>
+		<ion-button class="btns" (click)="setPuzzle(1)">Puzzle - 1</ion-button>
+		<ion-button class="btns" (click)="setPuzzle(2)">Puzzle - 2</ion-button>
+		<ion-button class="btns" (click)="setPuzzle(3)">Puzzle - 3</ion-button>
 	</div>
 	<div class="button-set">
-		<ion-button class="btns" (click)="selectPuzzle(4)">Puzzle - 4</ion-button>
-		<ion-button class="btns" (click)="selectPuzzle(5)">Puzzle - 5</ion-button>
-		<ion-button class="btns" (click)="selectPuzzle(6)">Puzzle - 6</ion-button>
+		<ion-button class="btns" (click)="setPuzzle(4)">Puzzle - 4</ion-button>
+		<ion-button class="btns" (click)="setPuzzle(5)">Puzzle - 5</ion-button>
+		<ion-button class="btns" (click)="setPuzzle(6)">Puzzle - 6</ion-button>
 	</div>
 	<table border="2" class="sudoku-board">
-		<tr *ngFor="let row of SS.board" class="sudoku-row">
-			<td *ngFor="let col of row" class="sudoku-cell">{{ col || "&nbsp;" }}</td>
+		<tr *ngFor="let X of SS.board; let i = index" class="sudoku-row">
+			<ng-container *ngFor="let Y of SS.board[i]; let j = index">
+				<td
+					*ngIf="SS.puzzle[i][j] !== 0 && SS.puzzle[i][j] === SS.board[i][j]; else elseBlock"
+					class="sudoku-cell"
+					id="fixed"
+					(click)="selectCell($event)"
+				>
+					{{ SS.board[i][j] || "&nbsp;" }}
+				</td>
+				<ng-template #elseBlock>
+					<td class="sudoku-cell" (click)="selectCell($event)">
+						{{ SS.board[i][j] || "&nbsp;" }}
+					</td>
+				</ng-template>
+			</ng-container>
 		</tr>
 	</table>
-	<br />
 	<table class="inp-table">
 		<tr>
 			<td (click)="sudokuInp(1)">1</td>
@@ -95,9 +119,12 @@
 			<td (click)="sudokuInp(7)">7</td>
 			<td (click)="sudokuInp(8)">8</td>
 			<td (click)="sudokuInp(9)">9</td>
-			<td (click)="sudokuInp(0)">X</td>
+			<td (click)="sudokuInp(0)"><ion-icon name="close" style="zoom: 1.5"></ion-icon></td>
 		</tr>
 	</table>
-	<center><ion-button (click)="solve()" class="solve-btn">Solve</ion-button></center>
-	<div *ngIf="SS.solve_time !== 0">Solved in {{ SS.solve_time}}</div>
+	<div style="text-align: center">
+		<ion-button (click)="solve()" class="solve-btn">Solve</ion-button>
+		<div *ngIf="SS.solve_time">Time taken to solve: {{ SS.solve_time}} seconds!</div>
+		<div *ngIf="error" style="color: red">{{ error }}</div>
+	</div>
 </ion-content>

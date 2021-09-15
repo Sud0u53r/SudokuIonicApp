@@ -3,7 +3,13 @@ import { Component } from '@angular/core';
 class SudokuSolver {
 	board = [];
 	solve_time = 0;
-	constructor() {}
+	puzzle = [];
+	solution = [];
+	conditions = [];
+
+	constructor() {
+		this.conditions = [this.checkRow, this.checkCol, this.checkBox];
+	}
 
 	checkRow = (board, position, num) => {
 		return board[position[0]].indexOf(num) === -1;
@@ -27,22 +33,30 @@ class SudokuSolver {
 		);
 	};
 
-	checkPuzzle = (board = this.board) => {
+	checkPuzzle = () => {
+		for (let i = 0; i < 9; i++) {
+			for (let j = 0; j < 9; j++) {
+				let board = JSON.parse(JSON.stringify(this.puzzle));
+				if (board[i][j] !== 0) {
+					let tmp = board[i][j];
+					board[i][j] = 0;
+					if (!this.conditions.map(f => f(board, [i, j], tmp)).every(x => x === true))
+						return false;
+				}
+			}
+		}
 		return true;
 	};
 
-	solve = (board = this.board) => {
-		let conditions = [this.checkRow, this.checkCol, this.checkBox];
+	solve = board => {
 		for (let i = 0; i < 9; i++) {
 			for (let j = 0; j < 9; j++) {
 				if (board[i][j] !== 0) continue;
-				let ss = [...Array(9).keys()]
-					.map(n => [
-						n + 1,
-						conditions.map(f => f(board, [i, j], n + 1)).every(x => x === true),
-					])
-					.filter(x => x[1])
-					.map(x => x[0]);
+				let ss = [];
+				for (let tmp_i = 1; tmp_i < 10; tmp_i++) {
+					if (this.conditions.map(f => f(board, [i, j], tmp_i)).every(x => x === true))
+						ss.push(tmp_i);
+				}
 				if (ss.length === 0) return false;
 				else if (ss.length === 1) {
 					board[i][j] = ss[0];
@@ -58,6 +72,7 @@ class SudokuSolver {
 				}
 			}
 		}
+		this.solution = board;
 		return board;
 	};
 }
@@ -70,6 +85,7 @@ class SudokuSolver {
 export class HomePage {
 	loader = false;
 	error = '';
+	selected_cell;
 	samples = [
 		[
 			[6, 0, 9, 1, 0, 2, 0, 8, 0],
@@ -139,30 +155,46 @@ export class HomePage {
 		],
 	];
 	SS = new SudokuSolver();
+
 	constructor() {
-		this.SS.board = this.samples[0];
+		this.setPuzzle(1);
 	}
 
 	solve() {
+		let time = Date.now();
 		if (!this.SS.checkPuzzle()) {
 			this.error = 'Given puzzle not solvable!';
+			this.SS.solve_time = 0;
 		} else {
 			this.loader = true;
 			setTimeout(() => {
-				let time = Date.now();
-				this.SS.board = this.SS.solve();
-				this.SS.solve_time = Date.now() - time;
-				setTimeout(() => (this.SS.solve_time = 0));
+				this.SS.solve(this.SS.puzzle);
+				if (this.SS.solution.length !== 0) {
+					this.SS.solve_time = (Date.now() - time) / 1000;
+					this.SS.board = this.SS.solution;
+				} else this.error = 'Given puzzle is not solvable!';
 				this.loader = false;
 			}, 100);
 		}
 	}
 
-	selectPuzzle(num) {
-		this.SS.board = this.samples[num - 1];
+	setPuzzle(num) {
+		this.SS.puzzle = JSON.parse(JSON.stringify(this.samples[num - 1]));
+		this.SS.board = this.SS.puzzle;
 	}
 
 	sudokuInp(num) {
-		return;
+		if (!this.selected_cell) return;
+		let i = this.selected_cell.parentNode.rowIndex;
+		let j = this.selected_cell.cellIndex;
+		this.SS.board[i][j] = num;
+	}
+
+	selectCell(x) {
+		if (this.selected_cell) {
+			this.selected_cell.classList.remove('selected-cell');
+		}
+		this.selected_cell = x.target;
+		this.selected_cell.classList.add('selected-cell');
 	}
 }
